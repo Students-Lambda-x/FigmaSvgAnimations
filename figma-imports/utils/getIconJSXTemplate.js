@@ -8,29 +8,29 @@ const getGenFileCaption = require( "./getGenFileCaption" );
 module.exports = ( name ) => `
 ${ getGenFileCaption() }
 import React from 'react';
-import styled, {keyframes} from 'styled-component';
+import styled, {keyframes} from 'styled-components';
 
-import {ReactComponent as ${ name }Component} from './${ name }.svg';
+import {ReactComponent as ${ name }} from './${ name }.svg';
 
 import Icon from '../Icon';
 
-export const ${ name } = (props) => (
-  <Icon {...props}>
-    <${ name }Svg/>
+export const ${ name }File = (props) => (
+  <Icon class=\"rotate\" {...props}>
+    <${ name }Component/>
   </Icon>
 );
 
 const rotate = keyframes\`
   0%{
-  rotate(0);
+  transform: rotateZ(0deg);
   }100%{
-  rotate(360deg);
+  transform: rotateZ(-360deg);
 }
 
 \`
 
-const ${ name }Svg = styled(${ name })\`
- #rotate {
+const ${ name }Component = styled(${ name })\`
+ .rotate {
     animation: 2s linear;
     }
 
