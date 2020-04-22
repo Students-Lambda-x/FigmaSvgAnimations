@@ -1,1 +1,1 @@
-export * from './SassVector/SassVector';
+export * from './Sass/Sass';

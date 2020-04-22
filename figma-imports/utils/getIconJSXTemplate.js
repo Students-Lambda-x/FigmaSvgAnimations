@@ -5,35 +5,56 @@ const getGenFileCaption = require( "./getGenFileCaption" );
  *
  * @param {string} name
  */
-module.exports = ( name ) => `
+module.exports = ( name, svgString ) => `
 ${ getGenFileCaption() }
-import React from 'react';
-import styled, {keyframes} from 'styled-components';
+import React, {useState, useEffect} from 'react';
+import styled from 'styled-components';
 
-import {ReactComponent as ${ name }} from './${ name }.svg';
+import {ReactComponent as ${ name }Svg} from './${ name }.svg'
 
-import Icon from '../Icon';
-
-export const ${ name }File = (props) => (
-  <Icon class=\"rotate\" {...props}>
-    <${ name }Component/>
-  </Icon>
-);
-
-const rotate = keyframes\`
-  0%{
-  transform: rotateZ(0deg);
-  }100%{
-  transform: rotateZ(-360deg);
-}
-
-\`
-
-const ${ name }Component = styled(${ name })\`
- .rotate {
-    animation: 2s linear;
+export const ${ name } = (props) => {
+    
+    const [ length, setLength ] = useState( 0 );
+    
+    useEffect( () => {
+    
+      let el = document.querySelector( "#${ name }-dash-array" );
+      
+      if( el !== null ){
+        if( el.tagName === "group" ){
+          el = el.lastElementChild;
+        }
+        
+        const elLength = el.getTotalLength();
+        setLength( elLength );
     }
+  }, [] );
+  
+  return (
+    <${ name }Component length={length}/>
+    )
+};
 
 
+const ${ name }Component = styled(${ name }Svg)\`
+&& {
+  height: $\{ props => props.height ? props.height : "300px" };
+  width: $\{ props => props.width ? props.width : "300px" };
+
+  .dash-array {
+    fill: transparent;
+    animation: dash 5s linear reverse;
+    stroke-dasharray: $\{ props => props.length + ", " + props.length };
+    }
+    
+    @keyframes dash {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: -$\{ props => props.length };
+    }
+  }
+}
 \`;
 `;

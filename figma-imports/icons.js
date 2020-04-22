@@ -4,6 +4,8 @@ const fs = require( "fs" );
 const { exec } = require( "child_process" );
 const { pascalCase } = require( "change-case" );
 const Promise = require( "bluebird" );
+const svgParser = require( "svg-parser" );
+const { svgToString } = require( "./utils/svgToString.js" );
 
 const { api, getIconJSXTemplate, svgo } = require( "./utils" );
 
@@ -41,20 +43,31 @@ const generateIcon = async( iconNode ) => {
   }
   
   const { data: iconContent } = await api.getImageContent( iconUrl );
-//  const {data: optimizedIconContent} = await svgo.optimize(iconContent);
-  
-  const animations = getClasses( iconNode );
-  
-  const iconJSXTemplate = getIconJSXTemplate( iconName, iconContent );
-  
-  await Promise.all( [
-    writeFile( path.resolve( iconFolderPath, `${ iconName }.svg` ),
+  const svg = svgParser.parse( iconContent );
+  svg.name = iconName;
+  let svgElement = svgToString( svg );
+  let writeSvg;
+  if( process.env.SVGO_OPTIMIZATION === "true" ){
+    const { data: optimizedIconContent } = await svgo.optimize( iconContent );
+    writeSvg = writeFile( path.resolve( iconFolderPath, `${ iconName }.svg` ),
       iconContent,
       { encoding: "utf8" },
-    ), writeFile( path.resolve( iconFolderPath, `${ iconName }.jsx` ),
-      iconJSXTemplate,
+    );
+  }else{
+    writeSvg = writeFile( path.resolve( iconFolderPath, `${ iconName }.svg` ),
+      svgElement,
       { encoding: "utf8" },
-    ),
+    );
+  }
+  
+  const iconJSXTemplate = getIconJSXTemplate( iconName );
+  
+  const iconJsx = writeFile( path.resolve( iconFolderPath,
+    `${ iconName }.jsx`,
+  ), iconJSXTemplate, { encoding: "utf8" } );
+  
+  await Promise.all( [
+    writeSvg, iconJsx,
   ] );
   
   console.log( `${ iconName } was written success!` );
