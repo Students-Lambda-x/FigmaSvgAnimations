@@ -1,9 +1,3 @@
-import React from 'react';
-
-import * as icons from './components/Icons';
-
-import './App.css';
-
 /**
  * Show all imported icons in different si
  * @return {*}

@@ -1,3 +1,4 @@
+const { getClasses } = require( "./utils/getClasses.js" );
 const path = require( "path" );
 const fs = require( "fs" );
 const { exec } = require( "child_process" );
@@ -42,7 +43,9 @@ const generateIcon = async( iconNode ) => {
   const { data: iconContent } = await api.getImageContent( iconUrl );
 //  const {data: optimizedIconContent} = await svgo.optimize(iconContent);
   
-  const iconJSXTemplate = getIconJSXTemplate( iconName );
+  const animations = getClasses( iconNode );
+  
+  const iconJSXTemplate = getIconJSXTemplate( iconName, iconContent );
   
   await Promise.all( [
     writeFile( path.resolve( iconFolderPath, `${ iconName }.svg` ),
