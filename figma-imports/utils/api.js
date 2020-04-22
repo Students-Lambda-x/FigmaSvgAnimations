@@ -1,33 +1,31 @@
-const api = require('axios');
+const api = require( "axios" );
 
 const headers = {
-  'X-FIGMA-TOKEN': process.env.FIGMA_TOKEN,
+  "X-FIGMA-TOKEN": process.env.FIGMA_TOKEN,
 };
 
 /**
  * api endpoint for files
  *
  */
-const instanceFiles = api.create({
-  baseURL: `https://api.figma.com/v1/files/${process.env.FILE_KEY}`,
-  headers,
-});
+const instanceFiles = api.create( {
+  baseURL: `https://api.figma.com/v1/files/${ process.env.FILE_KEY }`, headers,
+} );
 
 /**
  * api endpoint for images
  *
  */
-const instanceImages = api.create({
-  baseURL: `https://api.figma.com/v1/images/${process.env.FILE_KEY}`,
-  headers,
-});
+const instanceImages = api.create( {
+  baseURL: `https://api.figma.com/v1/images/${ process.env.FILE_KEY }`, headers,
+} );
 
 /**
  * get Figma document info
  *
  * @return {Promise<Object>}
  */
-const getDocument = async () => instanceFiles.get('/');
+const getDocument = async() => instanceFiles.get( "/" );
 
 /**
  * get Figma node info
@@ -35,7 +33,10 @@ const getDocument = async () => instanceFiles.get('/');
  * @param {string} nodeId
  * @return {Promise<Object>}
  */
-const getNode = async (nodeId) => instanceFiles.get(`/nodes?ids=${decodeURIComponent(nodeId)}`);
+const getNode = async( nodeId ) => {
+  
+  return instanceFiles.get( `/nodes?ids=${ decodeURIComponent( nodeId ) }` );
+};
 
 /**
  * get Figma node children
@@ -43,9 +44,10 @@ const getNode = async (nodeId) => instanceFiles.get(`/nodes?ids=${decodeURICompo
  * @param {string} nodeId
  * @return {Promise<[Object]>}
  */
-const getNodeChildren = async (nodeId) => {
-  const {data: {nodes}} = await instanceFiles.get(`/nodes?ids=${decodeURIComponent(nodeId)}`);
-  return nodes[nodeId].document.children;
+const getNodeChildren = async( nodeId ) => {
+  const { data: { nodes } } = await instanceFiles.get( `/nodes?ids=${ decodeURIComponent(
+    nodeId ) }` );
+  return nodes[ nodeId ].document.children;
 };
 
 /**
@@ -54,9 +56,10 @@ const getNodeChildren = async (nodeId) => {
  * @param {string} nodeId
  * @return {Promise<string>}
  */
-const getSvgImageUrl = async (nodeId) => {
-  const {data: {images }} = await instanceImages.get(`/?ids=${decodeURIComponent(nodeId)}&format=svg`);
-  return images[nodeId];
+const getSvgImageUrl = async( nodeId ) => {
+  const { data: { images } } = await instanceImages.get( `/?ids=${ decodeURIComponent(
+    nodeId ) }&format=svg&svg_include_id=true&svg_simplify_stroke=false` );
+  return images[ nodeId ];
 };
 
 /**
@@ -65,12 +68,8 @@ const getSvgImageUrl = async (nodeId) => {
  * @param {string} url - image url
  * @return {Promise<Object>}
  */
-const getImageContent = async (url) => api.get(url);
+const getImageContent = async( url ) => api.get( url );
 
 module.exports = {
-  getDocument,
-  getNode,
-  getNodeChildren,
-  getSvgImageUrl,
-  getImageContent,
+  getDocument, getNode, getNodeChildren, getSvgImageUrl, getImageContent,
 };
