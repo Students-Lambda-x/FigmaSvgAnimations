@@ -1,4 +1,6 @@
 const getGenFileCaption = require( "./getGenFileCaption" );
+const getComponentFunctions = require( "./getComponentFunctions" );
+const getStyledContent = require( "./getStyledContent.js" );
 
 /**
  * get icon component template
@@ -7,54 +9,24 @@ const getGenFileCaption = require( "./getGenFileCaption" );
  */
 module.exports = ( name, svgString ) => `
 ${ getGenFileCaption() }
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react'
 import styled from 'styled-components';
 
 import {ReactComponent as ${ name }Svg} from './${ name }.svg'
 
 export const ${ name } = (props) => {
     
-    const [ length, setLength ] = useState( 0 );
-    
-    useEffect( () => {
-    
-      let el = document.querySelector( "#${ name }-dash-array" );
-      
-      if( el !== null ){
-        if( el.tagName === "group" ){
-          el = el.lastElementChild;
-        }
-        
-        const elLength = el.getTotalLength();
-        setLength( elLength );
-    }
-  }, [] );
+    ${ getComponentFunctions() }
   
   return (
-    <${ name }Component length={length}/>
+    <${ name }Component length={length}>
+      ${ svgString.join( "\n" ) }
+    </${ name }Component>
     )
 };
 
 
 const ${ name }Component = styled(${ name }Svg)\`
-&& {
-  height: $\{ props => props.height ? props.height : "300px" };
-  width: $\{ props => props.width ? props.width : "300px" };
-
-  .dash-array {
-    fill: transparent;
-    animation: dash 5s linear reverse;
-    stroke-dasharray: $\{ props => props.length + ", " + props.length };
-    }
-    
-    @keyframes dash {
-    0% {
-      stroke-dashoffset: 0;
-    }
-    100% {
-      stroke-dashoffset: -$\{ props => props.length };
-    }
-  }
-}
+${ getStyledContent() }
 \`;
 `;

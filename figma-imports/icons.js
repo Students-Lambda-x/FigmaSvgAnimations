@@ -50,7 +50,7 @@ const generateIcon = async( iconNode ) => {
   if( process.env.SVGO_OPTIMIZATION === "true" ){
     const { data: optimizedIconContent } = await svgo.optimize( iconContent );
     writeSvg = writeFile( path.resolve( iconFolderPath, `${ iconName }.svg` ),
-      iconContent,
+      optimizedIconContent,
       { encoding: "utf8" },
     );
   }else{
@@ -60,7 +60,7 @@ const generateIcon = async( iconNode ) => {
     );
   }
   
-  const iconJSXTemplate = getIconJSXTemplate( iconName );
+  const iconJSXTemplate = getIconJSXTemplate( iconName, svgElement );
   
   const iconJsx = writeFile( path.resolve( iconFolderPath,
     `${ iconName }.jsx`,
@@ -106,10 +106,14 @@ const generateImports = ( iconNodesArr ) => {
   console.log( `imports was written success!` );
 };
 
+/**
+ *
+ * @return {Promise<void>}
+ */
 const main = async() => {
   clearIconsDir();
   
-  const iconNodesArr = await api.getNodeChildren( process.env.FRAME_WITH_ICONS_ID );
+  const iconNodesArr = await api.getNodeChildren( process.env.FRAME_WITH_SVGS_ID );
   
   await Promise.all( [
     generateIcons( iconNodesArr ), generateImports( iconNodesArr ),

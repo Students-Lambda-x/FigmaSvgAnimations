@@ -30,36 +30,35 @@ const getDocument = async() => instanceFiles.get( "/" );
 /**
  * get Figma node info
  *
- * @param {string} nodeId
+ * @param {string} svgId
  * @return {Promise<Object>}
  */
-const getNode = async( nodeId ) => {
-  
-  return instanceFiles.get( `/nodes?ids=${ decodeURIComponent( nodeId ) }` );
+const getNode = async( svgId ) => {
+  return instanceFiles.get( `/nodes?ids=${ decodeURIComponent( svgId ) }` );
 };
 
 /**
  * get Figma node children
  *
- * @param {string} nodeId
+ * @param {string} svgId
  * @return {Promise<[Object]>}
  */
-const getNodeChildren = async( nodeId ) => {
+const getNodeChildren = async( svgId ) => {
   const { data: { nodes } } = await instanceFiles.get( `/nodes?ids=${ decodeURIComponent(
-    nodeId ) }` );
-  return nodes[ nodeId ].document.children;
+    svgId ) }` );
+  return nodes[ svgId ].document.children;
 };
 
 /**
  * get Svg image resource url
  *
- * @param {string} nodeId
+ * @param {string} svgId
  * @return {Promise<string>}
  */
-const getSvgImageUrl = async( nodeId ) => {
+const getSvgImageUrl = async( svgId ) => {
   const { data: { images } } = await instanceImages.get( `/?ids=${ decodeURIComponent(
-    nodeId ) }&format=svg&svg_include_id=true&svg_simplify_stroke=false` );
-  return images[ nodeId ];
+    svgId ) }&format=svg&svg_include_id=true&svg_simplify_stroke=false` );
+  return images[ svgId ];
 };
 
 /**
