@@ -17,8 +17,8 @@ const Icon = ({children, size = '100', color = 'dark', className}) => {
 };
 
 Icon.propTypes = {
-  size: PropTypes.oneOf('100', '200', '300'),
-  color: PropTypes.oneOf('dark', 'light', 'accent'),
+  size: PropTypes.oneOf( "100", "200", "300" ),
+  color: PropTypes.oneOf( "dark", "light", "accent" ),
   className: PropTypes.string,
 };
 

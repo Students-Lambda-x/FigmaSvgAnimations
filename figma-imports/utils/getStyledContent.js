@@ -1,11 +1,11 @@
 module.exports = ( name ) => `
 && {
-  height: $\{ props => props.height ? props.height : "300px" };
-  width: $\{ props => props.width ? props.width : "300px" };
+  height: $\{ props => props.height ? props.height : "100%" };
+  width: $\{ props => props.width ? props.width : "100%" };
 
   .dash-array {
     fill: transparent;
-    animation: dash 5s linear reverse;
+    animation: dash 5s linear infinite reverse;
     stroke-dasharray: $\{ props => props.length + ", " + props.length };
     }
     

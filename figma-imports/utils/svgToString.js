@@ -59,7 +59,7 @@ const getElementProperties = ( properties, svgName, index ) => {
           dataArray.unshift( str );
           str = "";
         }else{
-          str = `${ word }  ${ str }`;
+          str = `${ word }  ${ str } `;
         }
         number += 1;
       }

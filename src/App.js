@@ -12,7 +12,7 @@ import "./App.css";
 function App(){
   return ( <div className="App">
     <h1>
-      Hot to automate delivery SVG icons from Figma to React using Figma API
+      Figma To React Animated Svgs
     </h1>
     
     <div className="all-you-imported-icons">
