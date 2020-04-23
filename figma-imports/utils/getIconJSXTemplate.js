@@ -1,11 +1,14 @@
 const getGenFileCaption = require( "./getGenFileCaption" );
 const getComponentFunctions = require( "./getComponentFunctions" );
 const getStyledContent = require( "./getStyledContent.js" );
+const { camelCase } = require( "change-case" );
 
 /**
  * get icon component template
  *
  * @param {string} name
+ * @param svgString
+ * @return {function(): string}
  */
 module.exports = ( name, svgString ) => `
 ${ getGenFileCaption() }
@@ -16,7 +19,7 @@ import {ReactComponent as ${ name }Svg} from './${ name }.svg'
 
 export const ${ name } = (props) => {
     
-    ${ getComponentFunctions() }
+    ${ getComponentFunctions( camelCase( name ) ) }
   
   return (
     <${ name }Component length={length}>
@@ -24,6 +27,7 @@ export const ${ name } = (props) => {
     </${ name }Component>
     )
 };
+
 
 
 const ${ name }Component = styled(${ name }Svg)\`

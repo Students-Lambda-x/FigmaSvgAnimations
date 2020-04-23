@@ -53,12 +53,6 @@ const getElementProperties = ( properties, svgName, index ) => {
       const dataArray = [];
       while( propArray.length > 0 ){
         let word = propArray.pop();
-        const indexOfLetter = word.indexOf( "C" );
-        if( indexOfLetter > 0 ){
-          const firstHalf = word.slice( 0, indexOfLetter );
-          const secondHalf = word.slice( indexOfLetter, word.length - 1 );
-          word = firstHalf + " " + secondHalf;
-        }
         
         if( number % 20 === 0 ){
           str = `${ getTabIndents( index ) } ${ word } ${ str } \ \n`;
@@ -85,7 +79,7 @@ const getElementProperties = ( properties, svgName, index ) => {
 };
 
 const joinKeyValue = ( key, value ) => {
-  return ` ${ camelCase( key ) }={"${ value }"}`;
+  return ` ${ camelCase( key ) }="${ value }"`;
 };
 
 const stripHyphens = ( propertyName ) => {
