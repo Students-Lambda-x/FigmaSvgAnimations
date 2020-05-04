@@ -1,21 +1,18 @@
-const { getClasses } = require( "./utils/getClasses.js" );
 const path = require( "path" );
 const fs = require( "fs" );
 const { exec } = require( "child_process" );
 const { pascalCase } = require( "change-case" );
-const Promise = require( "bluebird" );
 const svgParser = require( "svg-parser" );
-const { svgToString } = require( "./utils/svgToString.js" );
-
-const { api, getIconJSXTemplate, svgo } = require( "./utils" );
+const { writeFile } = require( "./dist/utils/fileHelper.js" );
+const { api } = require( "./dist/utils/api.js" );
+const { getIconJSXTemplate } = require( "./dist/utils/getIconJSXTemplate.js" );
+const { svgo } = require( "./utils" );
 
 const IconsDir = path.resolve( __dirname, "../src/components/Icons" );
 
 const getIconFolderPath = ( name ) => path.resolve( IconsDir,
   pascalCase( name ),
 );
-
-const writeFile = Promise.promisify( fs.writeFile );
 
 /**
  * clear icons dir except Icon.jsx and Icon.css files
@@ -49,22 +46,20 @@ const generateIcon = async( iconNode ) => {
   let writeSvg;
   if( process.env.SVGO_OPTIMIZATION === "true" ){
     const { data: optimizedIconContent } = await svgo.optimize( iconContent );
-    writeSvg = writeFile( path.resolve( iconFolderPath, `${ iconName }.svg` ),
-      optimizedIconContent,
-      { encoding: "utf8" },
+    writeSvg = writeFile( optimizedIconContent,
+      `${ iconName }.svg`,
+      iconFolderPath,
     );
   }else{
-    writeSvg = writeFile( path.resolve( iconFolderPath, `${ iconName }.svg` ),
-      svgElement,
-      { encoding: "utf8" },
-    );
+    writeSvg = writeFile( svgElement, `${ iconName }.svg`, iconFolderPath );
   }
   
   const iconJSXTemplate = getIconJSXTemplate( iconName, svgElement );
   
-  const iconJsx = writeFile( path.resolve( iconFolderPath,
+  const iconJsx = writeFile( iconJSXTemplate,
     `${ iconName }.jsx`,
-  ), iconJSXTemplate, { encoding: "utf8" } );
+    iconFolderPath,
+  );
   
   await Promise.all( [
     writeSvg, iconJsx,
@@ -80,8 +75,8 @@ const generateIcon = async( iconNode ) => {
  * @return {Promise<void>}
  */
 const generateIcons = async( iconNodesArr ) => {
-  await Promise.map( iconNodesArr, generateIcon, {
-    concurrency: Number.parseInt( process.env.CONCURRENCY ),
+  iconNodesArr.forEach( node => {
+    generateIcon( node );
   } );
 };
 
