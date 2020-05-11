@@ -1,1 +1,1 @@
-export * from './MaskGroup/MaskGroup';
+export * from './Sass/Sass';

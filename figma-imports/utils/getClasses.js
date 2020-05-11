@@ -1,6 +1,6 @@
 const events = [ "load" ];
 const animations = [ "dash-array" ];
-const getClasses = ( node, element, nodeAnimations = {} ) => {
+const getClasses = ( node, nodeAnimations = {} ) => {
   const name = node.name.split( " " );
   
   let eventsArr = [];
@@ -9,25 +9,16 @@ const getClasses = ( node, element, nodeAnimations = {} ) => {
   name.forEach( item => {
     if( events.includes( item ) ){
       eventsArr.push( item );
-      element.properties[ "class" ] = element.properties.class ?
-        element.properties.class + " " + item : item;
     }else if( animations.includes( item ) ){
-      animations.push( item );
-      element.properties[ "class" ] = element.properties.class ?
-        element.properties.class + " " + item : item;
+      animationsArr.push( item );
     }
   } );
   
-  nodeAnimations[ node.id ] = {
-    animationsArr: animationsArr, events: events,
-  };
+  nodeAnimations[node.name] = {events: eventsArr, animation: animationsArr}
   
   if( node.children ){
-    node.children.map( ( child, index ) => {
-      nodeAnimations = getClasses( child,
-        element.children[ index ],
-        nodeAnimations,
-      );
+    node.children.map( child => {
+      nodeAnimations = getClasses( child, nodeAnimations );
       return child;
     } );
   }

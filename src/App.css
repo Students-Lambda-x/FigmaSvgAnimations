@@ -5,7 +5,8 @@ body {
 .App {
     display: flex;
     flex-direction: column;
-    background: darkblue;
+    background: #30728c
+;
     min-height: 100vh;
 }
 

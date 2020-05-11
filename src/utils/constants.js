@@ -1,0 +1,5 @@
+
+
+const THEME = {
+  primary: "white",
+};

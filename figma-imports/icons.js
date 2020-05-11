@@ -2,11 +2,15 @@ const path = require( "path" );
 const fs = require( "fs" );
 const { exec } = require( "child_process" );
 const { pascalCase } = require( "change-case" );
-const svgParser = require( "svg-parser" );
+const xml2js = require( "xml2js" );
+const { addAnimationToSvg } = require( "./utils/addClassAndId.js" );
+const { getClasses } = require( "./utils/getClasses.js" );
 const { writeFile } = require( "./dist/utils/fileHelper.js" );
 const { api } = require( "./dist/utils/api.js" );
 const { getIconJSXTemplate } = require( "./dist/utils/getIconJSXTemplate.js" );
 const { svgo } = require( "./utils" );
+const svgParser = new xml2js.Parser();
+const svgBuilder = new xml2js.Builder();
 
 const IconsDir = path.resolve( __dirname, "../src/components/Icons" );
 
@@ -40,10 +44,13 @@ const generateIcon = async( iconNode ) => {
   }
   
   const { data: iconContent } = await api.getImageContent( iconUrl );
-  const svg = svgParser.parse( iconContent );
-  svg.name = iconName;
-  let svgElement = svgToString( svg );
+  let svg = await svgParser.parseStringPromise( iconContent );
+  //svg.name = iconName;
+  let animations = getClasses( iconNode );
+  svg = addAnimationToSvg( animations, svg, iconName );
+  const builtSvg = svgBuilder.buildObject( svg );
   let writeSvg;
+  
   if( process.env.SVGO_OPTIMIZATION === "true" ){
     const { data: optimizedIconContent } = await svgo.optimize( iconContent );
     writeSvg = writeFile( optimizedIconContent,
@@ -51,10 +58,13 @@ const generateIcon = async( iconNode ) => {
       iconFolderPath,
     );
   }else{
-    writeSvg = writeFile( svgElement, `${ iconName }.svg`, iconFolderPath );
+    writeSvg = writeFile( builtSvg, `${ iconName }.svg`, iconFolderPath );
   }
-  
-  const iconJSXTemplate = getIconJSXTemplate( iconName, svgElement );
+  const nodeStuff = writeFile( JSON.stringify( iconNode, {}, 2 ),
+    `${ iconName }.json`,
+    iconFolderPath,
+  );
+  const iconJSXTemplate = getIconJSXTemplate( iconName, builtSvg );
   
   const iconJsx = writeFile( iconJSXTemplate,
     `${ iconName }.jsx`,
@@ -62,7 +72,7 @@ const generateIcon = async( iconNode ) => {
   );
   
   await Promise.all( [
-    writeSvg, iconJsx,
+    writeSvg, iconJsx, nodeStuff,
   ] );
   
   console.log( `${ iconName } was written success!` );

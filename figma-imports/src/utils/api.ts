@@ -74,3 +74,5 @@ const getImageContent = async ( url: string ) => axios.get( url );
 export const api = {
   getDocument, getNode, getNodeChildren, getSvgImageUrl, getImageContent,
 };
+
+
