@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
 
 const headers = {
   "X-FIGMA-TOKEN": process.env.FIGMA_TOKEN,
@@ -44,10 +44,11 @@ const getNode = async ( svgId: string ) => {
  * @return {Promise<[Object]>}
  */
 const getNodeChildren = async ( svgId: string ) => {
-  const { data: { nodes } } = await instanceFiles.get(
+  const result: AxiosResponse = await instanceFiles.get(
     `/nodes?ids=${ decodeURIComponent(
       svgId ) }` );
-  return nodes[ svgId ].document.children;
+  const nodeList: NodeList = result.data;
+  return nodeList[ svgId ].document.children;
 };
 
 /**
@@ -75,4 +76,25 @@ export const api = {
   getDocument, getNode, getNodeChildren, getSvgImageUrl, getImageContent,
 };
 
+type NodeList = {
+  [ id: string ]: {
+    document: FrameNode
+    components: {
+      [ id: string ]: {
+        key: string,
+        name: string,
+        description: string
+      }
+    }
+    schemaVersion: number,
+    styles: {
+      [ id: string ]: {
+        key: string,
+        name: string,
+        styleType: string,
+        description: string
+      }
+    }
+  }
+}
 
