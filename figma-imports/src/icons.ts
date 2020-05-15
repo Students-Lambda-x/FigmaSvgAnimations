@@ -8,7 +8,8 @@ import { api } from "./utils/api";
 import { pascalCase } from "change-case";
 import { exec } from "child_process";
 import { getIconJSXTemplate } from "./utils/getIconJSXTemplate";
-const { svgo } = require( "./utils" );
+import { svgo } from "./utils/svgo";
+
 
 const svgParser = new xml2js.Parser();
 const svgBuilder = new xml2js.Builder();
@@ -34,13 +35,13 @@ const clearIconsDir = (): void => {
  * @param iconNode
  * @return {Promise<void>}
  */
-const generateIcon = async( iconNode ) => {
+const generateIcon = async ( iconNode ) => {
   const iconUrl = await api.getSvgImageUrl( iconNode.id );
   
   const iconName = pascalCase( iconNode.name );
   const iconFolderPath = getIconFolderPath( iconName );
   
-  if( !fs.existsSync( iconFolderPath ) ){
+  if ( !fs.existsSync( iconFolderPath ) ) {
     fs.mkdirSync( iconFolderPath );
   }
   
@@ -52,13 +53,13 @@ const generateIcon = async( iconNode ) => {
   const builtSvg = svgBuilder.buildObject( svg );
   let writeSvg;
   
-  if( process.env.SVGO_OPTIMIZATION === "true" ){
+  if ( process.env.SVGO_OPTIMIZATION === "true" ) {
     const { data: optimizedIconContent } = await svgo.optimize( iconContent );
     writeSvg = writeFile( optimizedIconContent,
       `${ iconName }.svg`,
       iconFolderPath,
     );
-  }else{
+  } else {
     writeSvg = writeFile( builtSvg, `${ iconName }.svg`, iconFolderPath );
   }
   const nodeStuff = writeFile( JSON.stringify( iconNode, {}, 2 ),
@@ -85,7 +86,7 @@ const generateIcon = async( iconNode ) => {
  * @param {[Object]} iconNodesArr - array of icon nodes from frame
  * @return {Promise<void>}
  */
-const generateIcons = async( iconNodesArr ) => {
+const generateIcons = async ( iconNodesArr ) => {
   iconNodesArr.forEach( node => {
     generateIcon( node );
   } );
@@ -116,20 +117,21 @@ const generateImports = ( iconNodesArr ) => {
  *
  * @return {Promise<void>}
  */
-const main = async() => {
+export const importSvgs = async () => {
   clearIconsDir();
   
-  if (!process.env.FRAME_WITH_SVGS_ID){
-    console.log("You must add the frame id of the svgs you want to add to" +
-      " the .env file.");
+  if ( !process.env.FRAME_WITH_SVGS_ID ) {
+    console.log( "You must add the frame id of the svgs you want to add to" +
+      " the .env file." );
     return;
   }
   
-  const iconNodesArr = await api.getNodeChildren( process.env.FRAME_WITH_SVGS_ID );
+  const iconNodesArr = await api.getNodeChildren(
+    process.env.FRAME_WITH_SVGS_ID );
   
   await Promise.all( [
     generateIcons( iconNodesArr ), generateImports( iconNodesArr ),
   ] );
 };
 
-module.exports = main;
+
