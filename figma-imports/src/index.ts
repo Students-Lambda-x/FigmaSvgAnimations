@@ -1,9 +1,12 @@
 import * as dotenv from "dotenv";
-import { importSvgs } from "./icons";
 
 dotenv.config();
+import { importSvgs } from "./icons";
+import { checkEnvFile } from "./utils/checkEnvFile";
+
 
 const main = async () => {
+  checkEnvFile();
   await importSvgs();
 };
 

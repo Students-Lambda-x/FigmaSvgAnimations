@@ -1,31 +1,58 @@
 import { camelCase } from "change-case";
 
 
-const dashArrayAttachAttributes = ( element, svgName ) => {
-  element.id = camelCase( svgName );
-  element.className = "dash-array";
+const dashArrayAttachAttributes = ( element: any, svgName: string ): any => {
+  
+  element.$.id = camelCase( svgName ) + "-dash-array";
+  element.$.className = "dash-array";
+  return element;
 };
 
-const animationObjects = { "dash-array": dashArrayAttachAttributes };
+const animationObjects: Animations = { "dash-array": dashArrayAttachAttributes };
 
-const addAnimationToSvg = ( classes, svgElement, svgName ) => {
-  let { $,svg, ...rest } = svgElement;
-  if (svg){
-    $ = svg;
+export const addAnimationToSvg = ( classes: NodeAnimations, svgElement: any,
+                                   svgName: string ) => {
+  
+  if ( Array.isArray( svgElement ) ) {
+    svgElement.forEach( el => {
+      addAnimationToSvg( classes, el, svgName );
+    } );
+  } else {
+    let { $, svg, ...rest } = svgElement;
+    if ( svg ) {
+      $ = svg;
+    }
+    
+    if ( $ ) {
+      if ( $.id && animationObjects[ $.id ] ) {
+        animationObjects[ $.id ]( svgElement, svgName );
+        
+      }
+      callAnimationOnKeys( $, classes, svgName );
+    }
+    if ( rest ) {
+      callAnimationOnKeys( rest, classes, svgName );
+    }
   }
-  if( $.id && animationObjects[ $.id ] ){
-    animationObjects[ $.is ]( svgElement, svgName );
-  }
-  const keys = Object.keys( $ );
+  
+  return svgElement;
+  
+};
+
+const callAnimationOnKeys = ( el: any, classes: NodeAnimations,
+                              svgName: string ) => {
+  const keys = Object.keys( el );
   keys.forEach( key => {
-    addAnimationToSvg( classes, rest[ key ] );
+    const next = el[ key ];
+    if ( typeof next !== "string" ) {
+      addAnimationToSvg( classes, el[ key ], svgName );
+    } else {
+      const newAttributeName = camelCase( key );
+      const value = el[ key ];
+      delete el[ key ];
+      el[ newAttributeName ] = value;
+    }
   } );
 };
 
-const renameAttributes = ( attributes ) => {
 
-};
-
-module.exports = {
-  addAnimationToSvg,
-};

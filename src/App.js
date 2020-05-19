@@ -10,6 +10,7 @@ import "./App.css";
  * @constructor
  */
 function App(){
+  
   return ( <div className="App">
     <h1>
       Figma To React Animated Svgs

@@ -10,11 +10,10 @@ import { exec } from "child_process";
 import { getIconJSXTemplate } from "./utils/getIconJSXTemplate";
 import { svgo } from "./utils/svgo";
 
-
 const svgParser = new xml2js.Parser();
-const svgBuilder = new xml2js.Builder();
+const svgBuilder = new xml2js.Builder( { headless: true } );
 
-const IconsDir = path.resolve( __dirname, "../src/components/Icons" );
+const IconsDir = path.resolve( __dirname, "../../src/components/Icons" );
 
 const getIconFolderPath = ( name: string ): string => path.resolve( IconsDir,
   pascalCase( name ),
@@ -35,7 +34,7 @@ const clearIconsDir = (): void => {
  * @param iconNode
  * @return {Promise<void>}
  */
-const generateIcon = async ( iconNode ) => {
+const generateIcon = async ( iconNode: SceneNode ) => {
   const iconUrl = await api.getSvgImageUrl( iconNode.id );
   
   const iconName = pascalCase( iconNode.name );
@@ -45,13 +44,14 @@ const generateIcon = async ( iconNode ) => {
     fs.mkdirSync( iconFolderPath );
   }
   
-  const { data: iconContent } = await api.getImageContent( iconUrl );
-  let svg = await svgParser.parseStringPromise( iconContent );
+  const { data: iconContent }: { data: string } = await api.getImageContent(
+    iconUrl );
+  let svg: any = await svgParser.parseStringPromise( iconContent );
   //svg.name = iconName;
-  let animations = getClasses( iconNode );
+  let animations: NodeAnimations = getClasses( iconNode );
   svg = addAnimationToSvg( animations, svg, iconName );
-  const builtSvg = svgBuilder.buildObject( svg );
-  let writeSvg;
+  const builtSvg: string = svgBuilder.buildObject( svg );
+  let writeSvg: Promise<any>;
   
   if ( process.env.SVGO_OPTIMIZATION === "true" ) {
     const { data: optimizedIconContent } = await svgo.optimize( iconContent );
@@ -62,11 +62,8 @@ const generateIcon = async ( iconNode ) => {
   } else {
     writeSvg = writeFile( builtSvg, `${ iconName }.svg`, iconFolderPath );
   }
-  const nodeStuff = writeFile( JSON.stringify( iconNode, {}, 2 ),
-    `${ iconName }.json`,
-    iconFolderPath,
-  );
-  const iconJSXTemplate = getIconJSXTemplate( iconName, builtSvg );
+  
+  const iconJSXTemplate = getIconJSXTemplate( iconName, builtSvg, animations );
   
   const iconJsx = writeFile( iconJSXTemplate,
     `${ iconName }.jsx`,
@@ -74,11 +71,12 @@ const generateIcon = async ( iconNode ) => {
   );
   
   await Promise.all( [
-    writeSvg, iconJsx, nodeStuff,
+    writeSvg, iconJsx,
   ] );
   
   console.log( `${ iconName } was written success!` );
 };
+
 
 /**
  * generate icons components
@@ -86,7 +84,7 @@ const generateIcon = async ( iconNode ) => {
  * @param {[Object]} iconNodesArr - array of icon nodes from frame
  * @return {Promise<void>}
  */
-const generateIcons = async ( iconNodesArr ) => {
+const generateIcons = async ( iconNodesArr: ReadonlyArray<SceneNode> ) => {
   iconNodesArr.forEach( node => {
     generateIcon( node );
   } );
@@ -97,7 +95,7 @@ const generateIcons = async ( iconNodesArr ) => {
  *
  * @param iconNodesArr - array of icon nodes from frame
  */
-const generateImports = ( iconNodesArr ) => {
+const generateImports = ( iconNodesArr: ReadonlyArray<SceneNode> ) => {
   const fileWithImportsPath = path.resolve( IconsDir, "index.js" );
   
   const importsContent = iconNodesArr
@@ -120,14 +118,8 @@ const generateImports = ( iconNodesArr ) => {
 export const importSvgs = async () => {
   clearIconsDir();
   
-  if ( !process.env.FRAME_WITH_SVGS_ID ) {
-    console.log( "You must add the frame id of the svgs you want to add to" +
-      " the .env file." );
-    return;
-  }
-  
   const iconNodesArr = await api.getNodeChildren(
-    process.env.FRAME_WITH_SVGS_ID );
+    <string> process.env.FRAME_WITH_SVGS_ID );
   
   await Promise.all( [
     generateIcons( iconNodesArr ), generateImports( iconNodesArr ),

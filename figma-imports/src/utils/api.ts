@@ -43,11 +43,11 @@ const getNode = async ( svgId: string ) => {
  * @param {string} svgId
  * @return {Promise<[Object]>}
  */
-const getNodeChildren = async ( svgId: string ) => {
-  const result: AxiosResponse = await instanceFiles.get(
+const getNodeChildren = async ( svgId: string ): Promise<ReadonlyArray<SceneNode>> => {
+  const result: AxiosResponse<any> = await instanceFiles.get(
     `/nodes?ids=${ decodeURIComponent(
       svgId ) }` );
-  const nodeList: NodeList = result.data;
+  const nodeList: NodeList = result.data.nodes;
   return nodeList[ svgId ].document.children;
 };
 

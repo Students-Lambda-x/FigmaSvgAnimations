@@ -12,27 +12,25 @@ import { camelCase } from "change-case";
  * @param svgString
  * @return {function(): string}
  */
-export const getIconJSXTemplate = ( name: string, svgString: string[] ) => `
+export const getIconJSXTemplate = ( name: string, svgString: string, animations: NodeAnimations  ) => `
 ${ getGenFileCaptions() }
 import React, {useState, useEffect} from 'react'
 import styled from 'styled-components';
 
-import {ReactComponent as ${ name }Svg} from './${ name }.svg'
-
 export const ${ name } = (props) => {
     
-    ${ getComponentFunctions( camelCase( name ) ) }
+    ${ getComponentFunctions( camelCase( name ), animations ) }
   
   return (
     <${ name }Component length={length}>
-      ${ svgString.join( "\n" ) }
+      ${ svgString }
     </${ name }Component>
     )
 };
 
 
 
-const ${ name }Component = styled(${ name }Svg)\`
-${ getStyledContent(name) }
+const ${ name }Component = styled.svg\`
+${ getStyledContent( name ) }
 \`;
 `;
