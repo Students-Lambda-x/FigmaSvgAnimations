@@ -1,8 +1,10 @@
-const events = [ "load" ];
-const animations = [ "dash-array" ];
+import { getAllAnimationsTypes, getAllEvents } from "../animations";
+
+const events: string[] = getAllEvents();
+const animations: string[] = getAllAnimationsTypes();
 
 export const getClasses = ( node: SceneNode,
-                            nodeAnimations: NodeAnimations = {} ) => {
+                            nodeAnimations: AnimationList = {} ) => {
   const name: string[] = node.name.split( " " );
   
   let eventsArr: string[] = [];
@@ -15,8 +17,18 @@ export const getClasses = ( node: SceneNode,
       animationsArr.push( item );
     }
   } );
-  
-  nodeAnimations[ node.name ] = { events: eventsArr, animation: animationsArr };
+  if ( eventsArr.length > 0 ) {
+    eventsArr.forEach( event => {
+      if ( nodeAnimations[ event ] ) {
+        nodeAnimations[ event ] =
+          [ ...nodeAnimations[ event ], ...animationsArr ];
+      } else {
+        nodeAnimations[ event ] = [ ...animationsArr ];
+      }
+      
+    } );
+    
+  }
   
   if ( "children" in node ) {
     node.children.map( ( child: SceneNode ) => {

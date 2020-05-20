@@ -1,21 +1,13 @@
 import { camelCase } from "change-case";
+import { animations } from "../animations";
 
-
-const dashArrayAttachAttributes = ( element: any, svgName: string ): any => {
-  
-  element.$.id = camelCase( svgName ) + "-dash-array";
-  element.$.className = "dash-array";
-  return element;
-};
-
-const animationObjects: Animations = { "dash-array": dashArrayAttachAttributes };
-
-export const addAnimationToSvg = ( classes: NodeAnimations, svgElement: any,
+export const addAnimationToSvg = ( animationList: AnimationList,
+                                   svgElement: any,
                                    svgName: string ) => {
   
   if ( Array.isArray( svgElement ) ) {
     svgElement.forEach( el => {
-      addAnimationToSvg( classes, el, svgName );
+      addAnimationToSvg( animationList, el, svgName );
     } );
   } else {
     let { $, svg, ...rest } = svgElement;
@@ -24,14 +16,23 @@ export const addAnimationToSvg = ( classes: NodeAnimations, svgElement: any,
     }
     
     if ( $ ) {
-      if ( $.id && animationObjects[ $.id ] ) {
-        animationObjects[ $.id ]( svgElement, svgName );
-        
+      if ( $.id ) {
+        const ids = $.id.split( " " );
+        ids.forEach( ( id: string ) => {
+          if ( id && animations[ id ] ) {
+            animations[ id ].addAttributesToSvg( svgElement, svgName );
+            
+          } else {
+            id = svgName + id;
+          }
+        } );
       }
-      callAnimationOnKeys( $, classes, svgName );
+      
+      
+      callAnimationOnKeys( $, animationList, svgName );
     }
     if ( rest ) {
-      callAnimationOnKeys( rest, classes, svgName );
+      callAnimationOnKeys( rest, animationList, svgName );
     }
   }
   
@@ -39,7 +40,7 @@ export const addAnimationToSvg = ( classes: NodeAnimations, svgElement: any,
   
 };
 
-const callAnimationOnKeys = ( el: any, classes: NodeAnimations,
+const callAnimationOnKeys = ( el: any, classes: AnimationList,
                               svgName: string ) => {
   const keys = Object.keys( el );
   keys.forEach( key => {

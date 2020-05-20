@@ -1,2 +1,2 @@
-type AnimationEvents = string[]
-type AnimationNames = string[]
+type AnimationList = {[event: string]: AnimationArray}
+type AnimationArray = string[]

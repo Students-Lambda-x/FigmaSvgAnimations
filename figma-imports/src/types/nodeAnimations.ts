@@ -1,5 +1,5 @@
 type NodeAnimations = {
-  [ name: string ]: {
+  [ animationName: string ]: {
     events: string[],
     animation: string[]
   }

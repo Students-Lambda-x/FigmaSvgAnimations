@@ -1,6 +1,5 @@
 import { getGenFileCaptions } from "./getGenFileCaption.js";
-import { getComponentFunctions } from "./getComponentFunctions";
-import { getStyledContent } from "./getStyledContent.js";
+import ComponentContents from "./getComponentContents";
 
 import { camelCase } from "change-case";
 
@@ -12,17 +11,31 @@ import { camelCase } from "change-case";
  * @param svgString
  * @return {function(): string}
  */
-export const getIconJSXTemplate = ( name: string, svgString: string, animations: NodeAnimations  ) => `
+export const getIconJSXTemplate = ( name: string, svgString: string,
+                                    animations: AnimationList ) => {
+  
+  const componentContentsCollector = new ComponentContents( name, animations );
+  const props = componentContentsCollector.getComponentProps();
+  let newProps = "";
+  
+  if ( props ) {
+    Object.keys( props ).forEach( ( prop: string ) => newProps +=
+      prop.toString() + "={" + props[ prop ].toString() + "}" );
+  }
+  
+  return `
+
 ${ getGenFileCaptions() }
 import React, {useState, useEffect} from 'react'
 import styled from 'styled-components';
 
 export const ${ name } = (props) => {
     
-    ${ getComponentFunctions( camelCase( name ), animations ) }
+    ${ componentContentsCollector.getFunctions() ?
+    componentContentsCollector.getFunctions() : "" }
   
   return (
-    <${ name }Component length={length}>
+    <${ name }Component ${ newProps.toString() }>
       ${ svgString }
     </${ name }Component>
     )
@@ -30,7 +43,9 @@ export const ${ name } = (props) => {
 
 
 
-const ${ name }Component = styled.svg\`
-${ getStyledContent( name ) }
+const ${ name }Component = styled.div\`
+${ componentContentsCollector.getStyledContent() ?
+    componentContentsCollector.getStyledContent() : "" }
 \`;
 `;
+};

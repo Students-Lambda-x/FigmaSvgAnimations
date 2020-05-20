@@ -1,6 +1,31 @@
+import { pascalCase } from "change-case";
+
+export const getStyledContent = ( name: string ) => `
+&& {
+  height: $\{ props => props.height ? props.height : "100%" };
+  width: $\{ props => props.width ? props.width : "100%" };
+
+  .${ name }-dash-array {
+    fill: transparent;
+    animation: dash 5s linear reverse;
+    stroke-dasharray: $\{ props => props.length + ", " + props.length };
+    }
+    
+    @keyframes dash {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: -$\{ props => props.length };
+    }
+  }
+}
+
+`;
+
 const getLoadDashArray = ( svgName: string ) => {
   return `
-    const [ length, setLength ] = useState( 0 );
+    const [ ${ svgName }Length, setLength ] = useState( 0 );
     
     useEffect( () => {
     
@@ -31,17 +56,30 @@ const componentFunctions: ComponentFunctions = {
 };
 
 export default class DashArray implements SvgAnimation {
-  getAnimationEvents(){
-    return ['load']
+  private readonly name: string = "dash-array";
+  
+  getName() {
+    return self.name;
   }
   
-  getAnimationNames(){
-    return ['dash-array']
+  getAnimations() {
+    return { load: [ "dash-array" ] };
   }
-
-  getComponentFunctions( event: string, animation: string, svgName: string ) {
-    return componentFunctions[ event ][ animation ]( svgName );
+  
+  getComponentContents( event: string, animation: string, svgName: string ) {
+    const functions = componentFunctions[ event ][ animation ](
+      pascalCase( svgName ) );
+    const styledContent = getStyledContent( svgName );
+    const componentProps = { [ "length" ]: `${ svgName }Length` };
+    return { styledContent, functions, componentProps };
+  }
+  
+  addAttributesToSvg( element: any, svgName: string ): any {
+    element.$.id = pascalCase( svgName ) + "-dash-array";
+    element.$.className = `${ svgName }-dash-array`;
+    return element;
   }
 }
+
 
 

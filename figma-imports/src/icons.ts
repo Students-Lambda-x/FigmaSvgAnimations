@@ -48,7 +48,7 @@ const generateIcon = async ( iconNode: SceneNode ) => {
     iconUrl );
   let svg: any = await svgParser.parseStringPromise( iconContent );
   //svg.name = iconName;
-  let animations: NodeAnimations = getClasses( iconNode );
+  let animations: AnimationList = getClasses( iconNode );
   svg = addAnimationToSvg( animations, svg, iconName );
   const builtSvg: string = svgBuilder.buildObject( svg );
   let writeSvg: Promise<any>;
