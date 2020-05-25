@@ -46,12 +46,22 @@ const generateIcon = async ( iconNode: SceneNode ) => {
   
   const { data: iconContent }: { data: string } = await api.getImageContent(
     iconUrl );
+  
   let svg: any = await svgParser.parseStringPromise( iconContent );
+  
   //svg.name = iconName;
   let animations: AnimationList = getClasses( iconNode );
   svg = addAnimationToSvg( animations, svg, iconName );
-  const builtSvg: string = svgBuilder.buildObject( svg );
+  
   let writeSvg: Promise<any>;
+  
+  const builtSvg: string = svgBuilder.buildObject( svg );
+  const iconJSXTemplate = getIconJSXTemplate( iconName, builtSvg, animations );
+  
+  const iconJsx = writeFile( iconJSXTemplate,
+    `${ iconName }.jsx`,
+    iconFolderPath,
+  );
   
   if ( process.env.SVGO_OPTIMIZATION === "true" ) {
     const { data: optimizedIconContent } = await svgo.optimize( iconContent );
@@ -62,13 +72,6 @@ const generateIcon = async ( iconNode: SceneNode ) => {
   } else {
     writeSvg = writeFile( builtSvg, `${ iconName }.svg`, iconFolderPath );
   }
-  
-  const iconJSXTemplate = getIconJSXTemplate( iconName, builtSvg, animations );
-  
-  const iconJsx = writeFile( iconJSXTemplate,
-    `${ iconName }.jsx`,
-    iconFolderPath,
-  );
   
   await Promise.all( [
     writeSvg, iconJsx,

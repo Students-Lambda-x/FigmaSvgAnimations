@@ -7,16 +7,16 @@ export const getStyledContent = ( name: string ) => `
 
   .${ name }-dash-array {
     fill: transparent;
-    animation: dash 5s linear reverse;
-    stroke-dasharray: $\{ props => props.length + ", " + props.length };
+    animation: ${ name }-dash 5s linear reverse;
+    stroke-dasharray: $\{ props => \`\${ props.length }px \${ props.length }px\` };
     }
     
-    @keyframes dash {
+    @keyframes ${ name }-dash {
     0% {
       stroke-dashoffset: 0;
     }
     100% {
-      stroke-dashoffset: -$\{ props => props.length };
+      stroke-dashoffset: -$\{ props => \`\${ props.length }px\` };
     }
   }
 }
@@ -75,9 +75,14 @@ export default class DashArray implements SvgAnimation {
   }
   
   addAttributesToSvg( element: any, svgName: string ): any {
+    
     element.$.id = pascalCase( svgName ) + "-dash-array";
     element.$.className = `${ svgName }-dash-array`;
     return element;
+  }
+  
+  getSvgProps() {
+    return "";
   }
 }
 

@@ -1,15 +1,28 @@
 export const getStyledContent = ( name: string, event: string ) => `
   .${ name }-fade-in{
-    opacity: 0;
-    :hover {
-      opacity: 1;
-    }
+    opacity: \${ props => props.hovered ? 1 : 0 };
+    transition: opacity 1s ease;
+
   }
 `;
 
 const getFadeInFunctions = ( svgName: string, event: string ) => {
   if ( event === "hover" ) {
-    return ``;
+    return `
+    const [ hovered, setHovered ] = useState( false );
+    
+    const mouseEnter = () => {
+    if( !hovered ){
+      setHovered( true );
+      }
+    };
+  
+    const mouseLeave = () => {
+      if( hovered ){
+        setHovered( false );
+      }
+    };
+    `;
   }
   return "";
 };
@@ -39,14 +52,21 @@ export default class FadeIn implements SvgAnimation {
     const functions = componentFunctions[ event ][ animation ]( svgName,
       event );
     const styledContent = getStyledContent( svgName, event );
-    const componentProps = { "hovered": "hovered" };
-    return { styledContent, functions, componentProps };
+    const componentProps = {
+      "hovered": "hovered", "onMouseLeave": "mouseLeave",
+    };
+    const svgProps = { "onMouseEnter": "mouseEnter" };
+    return { styledContent, functions, componentProps, svgProps };
   }
   
-  addAttributesToSvg( element: any, svgName: string ): any {
+  addAttributesToSvg( element: any, svgName: string, svgRootEl: any ): any {
+    if ( !svgRootEl.hasAttribute( "onMouseEnter" ) ) {
+      console.log( svgRootEl );
+    }
     element.$.className = `${ svgName }-fade-in`;
     return element;
   }
+
 }
 
 

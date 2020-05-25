@@ -3,7 +3,11 @@ import { animations } from "../animations";
 
 export const addAnimationToSvg = ( animationList: AnimationList,
                                    svgElement: any,
-                                   svgName: string ) => {
+                                   svgName: string,
+                                   svgRootElement: any = null ) => {
+  if ( svgRootElement === null ) {
+    svgRootElement = svgElement;
+  }
   
   if ( Array.isArray( svgElement ) ) {
     svgElement.forEach( el => {
@@ -20,7 +24,8 @@ export const addAnimationToSvg = ( animationList: AnimationList,
         const ids = $.id.split( " " );
         ids.forEach( ( id: string ) => {
           if ( id && animations[ id ] ) {
-            animations[ id ].addAttributesToSvg( svgElement, svgName );
+            animations[ id ].addAttributesToSvg( svgElement, svgName,
+              svgRootElement );
             
           } else {
             id = svgName + id;
@@ -29,10 +34,10 @@ export const addAnimationToSvg = ( animationList: AnimationList,
       }
       
       
-      callAnimationOnKeys( $, animationList, svgName );
+      callAnimationOnKeys( $, animationList, svgName, svgRootElement );
     }
     if ( rest ) {
-      callAnimationOnKeys( rest, animationList, svgName );
+      callAnimationOnKeys( rest, animationList, svgName, svgRootElement );
     }
   }
   
@@ -41,7 +46,7 @@ export const addAnimationToSvg = ( animationList: AnimationList,
 };
 
 const callAnimationOnKeys = ( el: any, classes: AnimationList,
-                              svgName: string ) => {
+                              svgName: string, svgRootEl: any ) => {
   const keys = Object.keys( el );
   keys.forEach( key => {
     const next = el[ key ];
