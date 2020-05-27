@@ -1,5 +1,5 @@
 export const getStyledContent = ( name: string, event: string ) => `
-  .${ name }-fade-in{
+  .${ name }-hover-fade-in{
     opacity: \${ props => props.hovered ? 1 : 0 };
     transition: opacity 1s ease;
 
@@ -59,14 +59,15 @@ export default class FadeIn implements SvgAnimation {
     return { styledContent, functions, componentProps, svgProps };
   }
   
-  addAttributesToSvg( element: any, svgName: string, svgRootEl: any ): any {
-    if ( !svgRootEl.hasAttribute( "onMouseEnter" ) ) {
-      console.log( svgRootEl );
+  addAttributesToSvg( element: any, svgName: string,
+                      otherPartsOfId: string[] ): any {
+    if ( otherPartsOfId.includes( "hover" ) ) {
+      element.$.className = `${ svgName }-hover-fade-in`;
+      return element;
     }
-    element.$.className = `${ svgName }-fade-in`;
-    return element;
+    
   }
-
+  
 }
 
 

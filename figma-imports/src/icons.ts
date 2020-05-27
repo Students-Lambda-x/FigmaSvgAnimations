@@ -7,7 +7,7 @@ import { writeFile } from "./utils/fileHelper";
 import { api } from "./utils/api";
 import { pascalCase } from "change-case";
 import { exec } from "child_process";
-import { getIconJSXTemplate } from "./utils/getIconJSXTemplate";
+import { IconJsxTemplateGenerator } from "./utils/getIconJSXTemplate";
 import { svgo } from "./utils/svgo";
 
 const svgParser = new xml2js.Parser();
@@ -56,7 +56,9 @@ const generateIcon = async ( iconNode: SceneNode ) => {
   let writeSvg: Promise<any>;
   
   const builtSvg: string = svgBuilder.buildObject( svg );
-  const iconJSXTemplate = getIconJSXTemplate( iconName, builtSvg, animations );
+  const jsxGenerator = new IconJsxTemplateGenerator( iconName, svg,
+    animations );
+  const iconJSXTemplate = jsxGenerator.generateTemplate();
   
   const iconJsx = writeFile( iconJSXTemplate,
     `${ iconName }.jsx`,

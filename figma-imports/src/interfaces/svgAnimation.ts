@@ -8,6 +8,7 @@ interface SvgAnimation {
                           svgName: string ) => null |
     { styledContent?: string, functions?: string, componentProps?: {}, svgProps?: {} }
   
-  addAttributesToSvg: ( element: any, svgName: string, svgRootEl: any ) => any
+  addAttributesToSvg: ( element: any, svgName: string,
+                        otherPartsOfId: string[] ) => any
   
 }

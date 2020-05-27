@@ -1,13 +1,9 @@
-import { camelCase } from "change-case";
+import { camelCase, pascalCase } from "change-case";
 import { animations } from "../animations";
 
 export const addAnimationToSvg = ( animationList: AnimationList,
                                    svgElement: any,
-                                   svgName: string,
-                                   svgRootElement: any = null ) => {
-  if ( svgRootElement === null ) {
-    svgRootElement = svgElement;
-  }
+                                   svgName: string ) => {
   
   if ( Array.isArray( svgElement ) ) {
     svgElement.forEach( el => {
@@ -23,21 +19,23 @@ export const addAnimationToSvg = ( animationList: AnimationList,
       if ( $.id ) {
         const ids = $.id.split( " " );
         ids.forEach( ( id: string ) => {
-          if ( id && animations[ id ] ) {
-            animations[ id ].addAttributesToSvg( svgElement, svgName,
-              svgRootElement );
+          const idNoUnderscore = id.split( "_" )[ 0 ];
+          if ( id && ( animations[ id ] ) ) {
+            animations[ id ].addAttributesToSvg( svgElement,
+              camelCase( svgName ), ids );
             
-          } else {
-            id = svgName + id;
+          } else if ( idNoUnderscore && animations[ idNoUnderscore ] ) {
+            animations[ idNoUnderscore ].addAttributesToSvg( svgElement,
+              camelCase( svgName ), ids );
           }
         } );
       }
       
       
-      callAnimationOnKeys( $, animationList, svgName, svgRootElement );
+      callAnimationOnKeys( $, animationList, svgName );
     }
     if ( rest ) {
-      callAnimationOnKeys( rest, animationList, svgName, svgRootElement );
+      callAnimationOnKeys( rest, animationList, svgName );
     }
   }
   
@@ -46,7 +44,7 @@ export const addAnimationToSvg = ( animationList: AnimationList,
 };
 
 const callAnimationOnKeys = ( el: any, classes: AnimationList,
-                              svgName: string, svgRootEl: any ) => {
+                              svgName: string ) => {
   const keys = Object.keys( el );
   keys.forEach( key => {
     const next = el[ key ];

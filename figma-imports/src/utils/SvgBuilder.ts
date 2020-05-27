@@ -6,51 +6,27 @@ export default class SvgBuilder implements SvgBuilder {
   private static attributeNameProcessors: [] = [];
   private static attributeValueProcessors: [] = [];
   
-  constructor() {
-    SvgBuilder.createBuilder();
-  }
-  
-  private static createBuilder() {
-    SvgBuilder.svgBuilder = new xml2js.Builder( {
-      attrNameProcessors: [ SvgBuilder.attrNameProcessors,
-        ...SvgBuilder.attributeNameProcessors ],
-      attrValueProcessors: [ SvgBuilder.attrValueProcessors,
-        ...SvgBuilder.attributeValueProcessors ],
-    } );
-  }
-  
-  static addNameOrValueProcessors( typeOfProcessors: TypesOfProcesses,
-                                   processors: [] ) {
-    
-    let addedProcessors = false;
-    if ( typeOfProcessors === "attributeName" ) {
-      SvgBuilder.attributeNameProcessors =
-        [ ...SvgBuilder.attributeNameProcessors, ...processors ];
-      addedProcessors = true;
-    } else if ( typeOfProcessors === "attributeValue" ) {
-      SvgBuilder.attributeValueProcessors =
-        [ ...SvgBuilder.attributeValueProcessors, ...processors ];
-      addedProcessors = true;
-    }
-    
-    if ( addedProcessors ) {
-      SvgBuilder.createBuilder();
+  static checkBuilder() {
+    if ( !SvgBuilder.svgBuilder ) {
+      SvgBuilder.svgBuilder = new xml2js.Builder( {
+        headless: true,
+        renderOpts: { pretty: true, indent: "  " },
+      } );
     }
   }
   
-  
-  static buildSvg( svg: any ): string {
-    return SvgBuilder.buildSvg( svg );
+  static buildSvg( svg: any,
+                   props: { [ propName: string ]: string } | false ): string {
+    SvgBuilder.checkBuilder();
+    let svgString = SvgBuilder.svgBuilder.buildObject( svg );
+    if ( props ) {
+      const indexOf = svgString.indexOf( "<svg " );
+      const firstHalf = svgString.slice( indexOf, indexOf + 5 );
+      const secondHalf = svgString.slice( indexOf + 5 );
+      svgString = firstHalf + props + secondHalf;
+    }
+    return svgString;
   }
-  
-  static attrNameProcessors( name: string ) {
-    console.log( name );
-    return name;
-  }
-  
-  static attrValueProcessors( value: string, name: string ) {
-    console.log( `${ name }: ${ value }` );
-  }
-  
   
 }
+

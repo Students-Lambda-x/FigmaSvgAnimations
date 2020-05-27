@@ -3,7 +3,7 @@ import ComponentContents from "./getComponentContents";
 import SvgBuilder from "./SvgBuilder";
 import { camelCase } from "change-case";
 
-class IconJsxTemplateGenerator implements IconJsxTemplateGenerator {
+export class IconJsxTemplateGenerator implements IconJsxTemplateGenerator {
   private readonly name: string;
   private readonly svg: any;
   private parsedSvgString: string;
@@ -16,7 +16,7 @@ class IconJsxTemplateGenerator implements IconJsxTemplateGenerator {
     this.svg = svg;
     this.animations = animations;
     this.componentContentCollector =
-      new ComponentContents( self.name, animations );
+      new ComponentContents( this.name, animations );
   }
   
   generateTemplate() {
@@ -24,17 +24,19 @@ class IconJsxTemplateGenerator implements IconJsxTemplateGenerator {
     this.generateComponentNameAndExport();
     this.generateFunctions();
     this.generateReturn();
+    this.generateStyledContent();
+    
+    return this.template;
   }
   
-  generateImports() {
-    this.template += `
-import React, {useState, useEffect} from 'react'
+  private generateImports() {
+    this.template = `import React, {useState, useEffect} from 'react'
 import styled from 'styled-components';
 
-    `;
+`;
   }
   
-  generateComponentNameAndExport() {
+  private generateComponentNameAndExport() {
     this.template += `export const ${ this.name } = (props) => {`;
   }
   
@@ -50,74 +52,40 @@ import styled from 'styled-components';
     if ( props ) {
       this.template += `
     return (
-    <${ this.name }Component ${ props.toString() }>`;
+    <${ this.name }Component ${ props.toString() }>
+      `;
     } else {
       this.template += `
       return (
-    <${ this.name }Component>`;
+    <${ this.name }Component>
+      `;
     }
     
     this.generateSvgString();
     
     this.template += `
-    </${ name }Component>
-  );
-};
+    </${ this.name }Component>
+        );
+    };
     `;
     
   }
   
   private generateSvgString(): void {
-    this.parsedSvgString = SvgBuilder.buildSvg( this.svg );
+    const svgProps = this.componentContentCollector.getSvgProps();
+    this.parsedSvgString = SvgBuilder.buildSvg( this.svg, svgProps );
     this.template += this.parsedSvgString;
   }
-}
-
-/**
- * get icon component template
- *
- * @param {string} name
- * @param svgString
- * @return {function(): string}
- */
-export const getIconJSXTemplate = ( name: string, svgString: string,
-                                    animations: AnimationList ) => {
-    
-    const componentContentsCollector = new ComponentContents( name, animations );
-    const props = componentContentsCollector.getComponentProps();
-    
-    
-    return `
-  import;
-  React;
-, {
-  useState;
-,
-  useEffect;
-}
-
-from;
-"react";
-import styled from "styled-components";
-
-export const ${ name } =;
-( props ) => {
   
-  ${ componentContentsCollector.hasFunctions() ?
-      componentContentsCollector.getFunctions() : "" }
-  
-  return (
-    <${ name }Component ${ props.toString() }>
-      ${ svgString }
-      </${ name }Component>
-  );
-};
-
-
-const ${ name }Component = styled.div\`
-${ componentContentsCollector.getStyledContent() ?
-      componentContentsCollector.getStyledContent() : "" }
-\`;
+  private generateStyledContent(): void {
+    const styledContent = this.componentContentCollector.getStyledContent();
+    if ( styledContent ) {
+      this.template += `
+const ${ this.name }Component = styled.div\`
+    ${ this.componentContentCollector.getStyledContent() }
+\`
 `;
+    }
+    
   }
-;
+}

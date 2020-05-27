@@ -1,6 +1,7 @@
 import {
   animations, getAllAnimationTypesByEvent,
 } from "../animations";
+import { camelCase } from "change-case";
 
 
 export default class ComponentContents implements ComponentContents {
@@ -23,7 +24,7 @@ export default class ComponentContents implements ComponentContents {
   }
   
   getFunctions() {
-    debugger;
+    
     if ( this.hasFunctions() ) {
       let functionStr = "";
       let first = true;
@@ -55,15 +56,29 @@ export default class ComponentContents implements ComponentContents {
   }
   
   getStyledContent() {
-    debugger;
+    
     this.checkContents();
     if ( this.contents ) {
-      return this.contents.styledContent;
+      if ( this.contents.styledContent.length > 0 ) {
+        let styledContentString = "";
+        let first = true;
+        this.contents.styledContent.forEach( animationContent => {
+          if ( first ) {
+            styledContentString += animationContent;
+            first = false;
+          } else {
+            styledContentString += "\n " + animationContent;
+          }
+          
+        } );
+        return styledContentString;
+      }
+      return false;
     }
   };
   
   getComponentProps(): string | false {
-    debugger;
+    
     this.checkContents();
     if ( this.contents ) {
       
@@ -121,15 +136,17 @@ const getComponentContents = ( name: string,
       animationTypes.forEach( ( type: string ) => {
         if ( animations[ type ] ) {
           const value = animations[ type ];
-          content = value.getComponentContents( key, type, name );
+          content = value.getComponentContents( key, type, camelCase( name ) );
           
           if ( content === null ) {
             throw new Error(
               `${ type } did not return a value for getComponentFunctions.` );
           } else {
-            componentContent.componentProps.push( content.componentProps );
-            componentContent.functions.push( content.functions );
-            componentContent.styledContent.push( content.styledContent );
+            Object.keys( content ).forEach( key => {
+              componentContent[ key ] =
+                [ ...componentContent[ key ], content[ key ] ];
+            } );
+            
           }
           
         }

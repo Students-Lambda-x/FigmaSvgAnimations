@@ -9,7 +9,7 @@ interface SvgBuilder {
   
   addNameOrValueProcessors( typeOfProcessors: string, processors: [] ): void
   
-  buildSvg( svg: any ): string;
+  buildSvg( svg: any, svgProps: {[propName: string]: string} ): string;
   
   attrNameProcessors( name: string ): string;
   
